@@ -18,20 +18,22 @@ namespace Res.Commands
 
         public LoadReservationsCommand(ReservationListingViewModel viewModel, HotelStore hotelStore)
         {
-            
+            _viewModel = viewModel;
             _hotelStore = hotelStore;
         }
 
         public override async Task ExecuteAsync(object parameter)
         {
-            _viewModel.IsLoading = true;
             _viewModel.ErrorMessage = string.Empty;
+            _viewModel.IsLoading = true;
+            
+
             try
             {
-
+                await _hotelStore.Load();
                 throw new Exception();
 
-                await _hotelStore.Load();
+                
 
             
 

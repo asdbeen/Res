@@ -32,9 +32,14 @@ namespace Res.ViewModels
             {
                 _errorMessage = value;
                 OnPropertyChanged(nameof(ErrorMessage));
+
+                OnPropertyChanged(nameof(HasErrorMessage));
             }
            
         }
+
+        public bool HasErrorMessage => !string.IsNullOrEmpty(ErrorMessage);
+
         public MakeReservationViewModel MakeReservationViewModel { get; }
 
         private bool _isLoading;
@@ -50,19 +55,21 @@ namespace Res.ViewModels
             {
                 _isLoading = value;
                 OnPropertyChanged(nameof(IsLoading));
+
             }
         }
 
+        
 
         private readonly HotelStore _hotelStore;
         public ICommand LoadReservationCommand { get; }
         public ICommand MakeReservationCommand { get; }
 
-        public ReservationListingViewModel( HotelStore hotelStore, MakeReservationViewModel makeReservationViewModel, NavigationService makeReservationNavigationService)
+        public ReservationListingViewModel( HotelStore hotelStore, NavigationService makeReservationNavigationService)
         {
             _hotelStore = hotelStore;
             _reservations = new ObservableCollection<ReservationViewModel>();
-            MakeReservationViewModel = makeReservationViewModel;
+            
             LoadReservationCommand = new LoadReservationsCommand(this, hotelStore);
             MakeReservationCommand = new NavigateCommand(makeReservationNavigationService);
 
@@ -92,7 +99,7 @@ namespace Res.ViewModels
             MakeReservationViewModel makeReservationViewModel,
             NavigationService makeReservationNavigationSerivce)
         {
-            ReservationListingViewModel viewModel = new ReservationListingViewModel(hotelStore, makeReservationViewModel, makeReservationNavigationSerivce);
+            ReservationListingViewModel viewModel = new ReservationListingViewModel(hotelStore, makeReservationNavigationSerivce);
             
             viewModel.LoadReservationCommand.Execute(null);
             return viewModel;
