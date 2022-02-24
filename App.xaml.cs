@@ -15,6 +15,8 @@ using Res.DbContexts;
 using Res.Services.ReservationProviders;
 using Res.Services.ReservationCreators;
 using Res.Services.ReservationConflictValidators;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Res
 {
@@ -31,17 +33,33 @@ namespace Res
         public App()
 
         {
-            _resDbContextFactory = new ResDbContextFactory(CONNECTION_STRING);
-            IReservationProvider reservationProvider = new DatabaseReservationProvider(_resDbContextFactory);
-            IReservationCreator reservationCreator = new DatabaseReservationCreator(_resDbContextFactory);
-            IReservationConflictValidator reservationConflictValidator = new DatabaseReservationConflictValidator(_resDbContextFactory);
+            Host.CreateDefaultBuilder().ConfigureServices(services =>
+            {
+                services.AddSingleton<ResDbContextFactory>(new ResDbContextFactory(CONNECTION_STRING));
+                services.AddSingleton<IReservationProvider, DatabaseReservationProvider>();
+                services.AddSingleton< IReservationCreator, DatabaseReservationCreator>();
+                services.AddSingleton<IReservationConflictValidator, DatabaseReservationConflictValidator>();
+
+                services.AddTransient<ReservationBook>();
+                services.AddSingleton((s) => new Hotel("ASD Suites", s.GetRequiredService<ReservationBook>()));
+
+                services.AddSingleton<HotelStore>();
+                services.AddSingleton<NavigationStore>();
+            })
+                .Build();
+
+
+            //_resDbContextFactory = new ResDbContextFactory(CONNECTION_STRING);
+            //IReservationProvider reservationProvider = new DatabaseReservationProvider(_resDbContextFactory);
+            //IReservationCreator reservationCreator = new DatabaseReservationCreator(_resDbContextFactory);
+            //IReservationConflictValidator reservationConflictValidator = new DatabaseReservationConflictValidator(_resDbContextFactory);
 
 
 
-            ReservationBook reservationBook = new ReservationBook(reservationProvider,reservationCreator,reservationConflictValidator);
-            _hotel = new Hotel("ASD Suites",reservationBook);
-            _hotelStore = new HotelStore(_hotel);
-            _navigationStore = new NavigationStore();
+            //ReservationBook reservationBook = new ReservationBook(reservationProvider,reservationCreator,reservationConflictValidator);
+            //_hotel = new Hotel("ASD Suites",reservationBook);
+            //_hotelStore = new HotelStore(_hotel);
+            //_navigationStore = new NavigationStore();
         }
         protected override void OnStartup(StartupEventArgs e)
         {
