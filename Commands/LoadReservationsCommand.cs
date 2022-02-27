@@ -31,7 +31,7 @@ namespace Res.Commands
             try
             {
                 await _hotelStore.Load();
-                throw new Exception();
+                //throw new Exception();
 
                 
 
